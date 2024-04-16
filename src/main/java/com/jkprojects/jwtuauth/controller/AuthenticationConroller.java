@@ -21,7 +21,7 @@ public class AuthenticationConroller {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) throws Exception {
         return ResponseEntity.ok(authenticationService.login(request));
     }
 

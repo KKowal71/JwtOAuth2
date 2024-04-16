@@ -3,6 +3,7 @@ package com.jkprojects.jwtuauth.service;
 import com.jkprojects.jwtuauth.model.*;
 import com.jkprojects.jwtuauth.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.InvalidClaimException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,7 +38,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public AuthenticationResponse login(LoginRequest request) {
+    public AuthenticationResponse login(LoginRequest request) throws Exception {
 //        authenticationManager.authenticate(
 //                new UsernamePasswordAuthenticationToken(
 //                        request.getUsernameOrEmail(),
@@ -52,10 +53,16 @@ public class AuthenticationService {
             user = userRepository.findByUsername(request.getUsernameOrEmail()).orElseThrow();
             extraClaims.put("email", user.getEmail());
         }
+
         extraClaims.put("role", user.getRole());
         extraClaims.put("id", user.getId());
         extraClaims.put("name", user.getName());
-        var jwtToken = jwtService.generateToken(extraClaims, user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new Exception("Invalid password");
+        } else {
+            var jwtToken = jwtService.generateToken(extraClaims, user);
+            return AuthenticationResponse.builder().token(jwtToken).build();
+        }
     }
 }
