@@ -24,5 +24,4 @@ public class AuthenticationConroller {
     public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authenticationService.login(request));
     }
-
 }
